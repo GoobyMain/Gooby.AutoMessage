@@ -1,0 +1,9 @@
+{
+    "name": "AutoMessage",
+    "version_number": "0.2.0",
+    "website_url": "",
+    "description": "Makes you say a message at the of the match, customizable",
+    "dependencies": [
+		"EladNLG-ModSettings-2.0.2"
+    ]
+}
