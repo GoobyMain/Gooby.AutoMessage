@@ -1,8 +1,8 @@
 {
     "name": "AutoMessage",
-    "version_number": "0.2.0",
+    "version_number": "0.2.1",
     "website_url": "https://github.com/GoobyMain/Gooby.AutoMessage",
-    "description": "Makes you say a message at the of the match, customizable",
+    "description": "Makes you say messages at different events, including end of match, customizable",
     "dependencies": [
 		"EladNLG-ModSettings-2.0.2"
     ]

@@ -1,8 +1,11 @@
 global function InitAutoMessage
 
 global float AutoMessageWaitTime
+
 global string AutoMessageStartText
+global string AutoMessageHalfText
 global string AutoMessageEndText
+
 global bool DeathCallbackExists
 
 void function InitAutoMessage()
@@ -10,6 +13,7 @@ void function InitAutoMessage()
     if ( IsMultiplayer() )
     {
         AddCallback_GameStateEnter( eGameState.Prematch, MatchStart )
+        AddCallback_GameStateEnter( eGameState.SwitchingSides, MatchHalf )
         AddCallback_GameStateEnter( eGameState.WinnerDetermined, MatchEnd )
     }
 }
@@ -21,6 +25,16 @@ void function MatchStart()
 
     if ( AutoMessageStartText != "" )
         SendMessage( AutoMessageStartText )
+    
+}
+
+void function MatchHalf()
+{
+    AutoMessageWaitTime = GetConVarFloat( "auto_message_wait_time" )
+    AutoMessageHalfText = GetConVarString( "auto_message_half_text" )
+
+    if ( AutoMessageHalfText != "" )
+        SendMessage( AutoMessageHalfText )
     
 }
 
@@ -89,4 +103,11 @@ void function SendMessage( string MessageText )
 // HANDLE GAMEMODES WITH MULTIPLE ROUNDS - WINNERDETERMINED PLAYS AT END OF EACH ROUND
 // then add "gh" option for eGameState.SwitchingSides
 //
+// fix double gg bug if you die at end of epilogue
+// caused by removeondeathcallback not stopping sendmessage() if it's already waiting
+//
+// when you die in epilogue, first check if you can respawn, before sending message or removing callbacks
+//
 // write functions for managing death callbacks - one to check if it exists and one to remove it
+//
+// add other events with corresponding messages - pilot execution, titan execution, getting executed, getting shot from far away?

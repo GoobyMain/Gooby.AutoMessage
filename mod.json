@@ -1,7 +1,7 @@
 {
 	"Name": "Gooby.AutoMessage",
-	"Description": "Makes you say a message at the of the match",
-	"Version": "0.2.0",
+	"Description": "Makes you say messages at different events, including end of match, customizable",
+	"Version": "0.2.1",
 	"LoadPriority": 2,
 	
 	"ConVars": [
@@ -23,7 +23,7 @@
 			"Flags": 16777216
 		},
 		{
-			// How many seconds after game ends to wait before sending the message
+			// How many seconds after event occurs to wait before sending the message
 			"Name": "auto_message_wait_time",
 			"DefaultValue": "0",
 			"Flags": 16777216
