@@ -104,9 +104,6 @@ void function SendMessage( string MessageText, float WaitTime )
 //
 // HANDLE GAMEMODES WITH MULTIPLE ROUNDS - WINNERDETERMINED PLAYS AT END OF EACH ROUND
 //
-// fix double gg bug if you die at end of epilogue
-// caused by removeondeathcallback not stopping sendmessage() if it's already waiting
-//
 // when you die in epilogue, first check if you can respawn, before sending message or removing callbacks
 //
 // write functions for managing death callbacks - one to check if it exists and one to remove it
