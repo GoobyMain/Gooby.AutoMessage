@@ -6,7 +6,7 @@ global string AutoMessageStartText
 global string AutoMessageHalfText
 global string AutoMessageEndText
 
-global bool DeathCallbackExists
+global bool MessageSentDuringEpilogue
 
 void function InitAutoMessage()
 {
@@ -24,7 +24,7 @@ void function MatchStart()
     AutoMessageStartText = GetConVarString( "auto_message_start_text" )
 
     if ( AutoMessageStartText != "" )
-        SendMessage( AutoMessageStartText )
+        SendMessage( AutoMessageStartText, AutoMessageWaitTime )
     
 }
 
@@ -34,7 +34,7 @@ void function MatchHalf()
     AutoMessageHalfText = GetConVarString( "auto_message_half_text" )
 
     if ( AutoMessageHalfText != "" )
-        SendMessage( AutoMessageHalfText )
+        SendMessage( AutoMessageHalfText, AutoMessageWaitTime )
     
 }
 
@@ -55,12 +55,12 @@ void function MatchEnd()
             else
                 AutoMessageWaitTime = AutoMessageWaitTime - 1.0
             
-            SendMessage( AutoMessageEndText )
+            SendMessage( AutoMessageEndText, AutoMessageWaitTime )
         }
         else if ( GetGameState() == eGameState.Epilogue ) // eGameState.Epilogue means there is epilogue
         {
             AddOnDeathCallback( "player", PlayerDiedDuringEpilogue )
-            DeathCallbackExists = true
+            MessageSentDuringEpilogue = false
             // I don't really like using this, the best way to do it would be to write a function to check if there's a callback in the list that calls PlayerDiedDuringEpilogue, but I'm lazy
 
             AddCallback_GameStateEnter( eGameState.Postmatch, EpilogueOver ) // eGameState.Postmatch means game is over, showing scoreboard
@@ -72,28 +72,33 @@ void function PlayerDiedDuringEpilogue( entity player )
 {
     if ( player == GetLocalClientPlayer() )
     {
-        if ( DeathCallbackExists == true ) // I don't really like using this, the best way to do it would be to write a function to remove a callback in the list during EpilogueOver()
+        if ( MessageSentDuringEpilogue == false ) // I don't really like using this, the best way to do it would be to write a function to remove a callback in the list during EpilogueOver()
         {
-            DeathCallbackExists = false
-            thread SendMessage( AutoMessageEndText )
+            wait AutoMessageWaitTime
+
+            if ( MessageSentDuringEpilogue == false )
+            {
+                MessageSentDuringEpilogue = true
+
+                thread SendMessage( AutoMessageEndText, 0 )
+            }
         }
     }
 }
 
 void function EpilogueOver()
 {
-    if ( DeathCallbackExists == true )
+    if ( MessageSentDuringEpilogue == false )
     {
-        DeathCallbackExists = false //RemoveOnDeathCallback( "player" , PlayerDiedDuringEpilogue )//<-----------------------------------------------------------------------------------------
+        MessageSentDuringEpilogue = true //RemoveOnDeathCallback( "player" , PlayerDiedDuringEpilogue )//<----------------------------------------------------------------------------
 
-        AutoMessageWaitTime = 0
-        SendMessage( AutoMessageEndText )
+        SendMessage( AutoMessageEndText, 0 )
     }
 }
 
-void function SendMessage( string MessageText )
+void function SendMessage( string MessageText, int WaitTime )
 {
-    wait AutoMessageWaitTime
+    wait WaitTime
     GetLocalClientPlayer().ClientCommand( "say " + MessageText )
 }
 
@@ -101,7 +106,6 @@ void function SendMessage( string MessageText )
 // TODO
 //
 // HANDLE GAMEMODES WITH MULTIPLE ROUNDS - WINNERDETERMINED PLAYS AT END OF EACH ROUND
-// then add "gh" option for eGameState.SwitchingSides
 //
 // fix double gg bug if you die at end of epilogue
 // caused by removeondeathcallback not stopping sendmessage() if it's already waiting
