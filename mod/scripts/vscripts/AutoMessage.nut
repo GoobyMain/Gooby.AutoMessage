@@ -72,31 +72,28 @@ void function PlayerDiedDuringEpilogue( entity player )
 {
     if ( player == GetLocalClientPlayer() )
     {
-        if ( MessageSentDuringEpilogue == false ) // I don't really like using this, the best way to do it would be to write a function to remove a callback in the list during EpilogueOver()
-        {
-            wait AutoMessageWaitTime
-
-            if ( MessageSentDuringEpilogue == false )
-            {
-                MessageSentDuringEpilogue = true
-
-                thread SendMessage( AutoMessageEndText, 0 )
-            }
-        }
+        thread SendMessageDuringEpilogue( AutoMessageEndText, AutoMessageWaitTime )
     }
 }
 
 void function EpilogueOver()
 {
+    SendMessageDuringEpilogue( AutoMessageEndText, 0 )
+}
+
+void function SendMessageDuringEpilogue( string MessageText, float WaitTime )
+{
+    wait WaitTime
+
     if ( MessageSentDuringEpilogue == false )
     {
         MessageSentDuringEpilogue = true //RemoveOnDeathCallback( "player" , PlayerDiedDuringEpilogue )//<----------------------------------------------------------------------------
 
-        SendMessage( AutoMessageEndText, 0 )
+        GetLocalClientPlayer().ClientCommand( "say " + MessageText )
     }
 }
 
-void function SendMessage( string MessageText, int WaitTime )
+void function SendMessage( string MessageText, float WaitTime )
 {
     wait WaitTime
     GetLocalClientPlayer().ClientCommand( "say " + MessageText )
