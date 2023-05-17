@@ -18,14 +18,33 @@ void function InitAutoMessage()
     }
 }
 
+void function RemoveCallback_GameStateEnter( int gameState, void functionref() callbackFunc )
+{
+    Assert( gameState < clGlobal.gameStateEnterCallbacks.len() )
+
+    Assert( clGlobal.gameStateEnterCallbacks[ gameState ].contains( callbackFunc ), "Have not added " + string( callbackFunc ) + " with AddCallback_GameStateEnter" )
+
+    clGlobal.gameStateEnterCallbacks[ gameState ].remove( clGlobal.gameStateEnterCallbacks[ gameState ].find( callbackFunc ) )
+}
+
 void function MatchStart()
 {
     AutoMessageWaitTime = GetConVarFloat( "auto_message_wait_time" )
     AutoMessageStartText = GetConVarString( "auto_message_start_text" )
+    AutoMessageEndText = GetConVarString( "auto_message_end_text" )
 
     if ( AutoMessageStartText != "" )
         SendMessage( AutoMessageStartText, AutoMessageWaitTime )
     
+    if ( IsRoundBased() )
+    {
+        if ( AutoMessageStartText != "" )
+            AddCallback_GameStateEnter( eGameState.Postmatch, EpilogueOver )
+
+        RemoveCallback_GameStateEnter( eGameState.WinnerDetermined, MatchEnd )
+    }
+    
+    RemoveCallback_GameStateEnter( eGameState.Prematch, MatchStart )
 }
 
 void function MatchHalf()
@@ -39,14 +58,14 @@ void function MatchHalf()
 }
 
 void function MatchEnd()
-{   
-    wait 1 // This gives enough time for the gamestate to change from eGameState.WinnerDetermined to eGameState.Epilogue if there's an epilogue
-
+{
     AutoMessageWaitTime = GetConVarFloat( "auto_message_wait_time" )
     AutoMessageEndText = GetConVarString( "auto_message_end_text" )
 
     if ( AutoMessageEndText != "" )
     {
+        wait 1 // This gives enough time for the gamestate to change from eGameState.WinnerDetermined to eGameState.Epilogue if there's an epilogue
+
         if ( GetGameState() == eGameState.WinnerDetermined ) // eGameState.WinnerDetermined here means there's no epilogue
         {
             // Adjust AutoMessageWaitTime for that 1 second wait from earlier
@@ -59,10 +78,9 @@ void function MatchEnd()
         }
         else if ( GetGameState() == eGameState.Epilogue ) // eGameState.Epilogue means there is epilogue
         {
-            AddOnDeathCallback( "player", PlayerDiedDuringEpilogue )
             MessageSentDuringEpilogue = false
-            // I don't really like using this, the best way to do it would be to write a function to check if there's a callback in the list that calls PlayerDiedDuringEpilogue, but I'm lazy
 
+            AddOnDeathCallback( "player", PlayerDiedDuringEpilogue )
             AddCallback_GameStateEnter( eGameState.Postmatch, EpilogueOver ) // eGameState.Postmatch means game is over, showing scoreboard
         }
     }
@@ -87,7 +105,7 @@ void function SendMessageDuringEpilogue( string MessageText, float WaitTime )
 
     if ( MessageSentDuringEpilogue == false )
     {
-        MessageSentDuringEpilogue = true //RemoveOnDeathCallback( "player" , PlayerDiedDuringEpilogue )//<----------------------------------------------------------------------------
+        MessageSentDuringEpilogue = true
 
         GetLocalClientPlayer().ClientCommand( "say " + MessageText )
     }
@@ -102,10 +120,10 @@ void function SendMessage( string MessageText, float WaitTime )
 
 // TODO
 //
-// HANDLE GAMEMODES WITH MULTIPLE ROUNDS - WINNERDETERMINED PLAYS AT END OF EACH ROUND
+// HANDLE GAMEMODES WITH MULTIPLE HALFS??
 //
 // when you die in epilogue, first check if you can respawn, before sending message or removing callbacks
 //
-// write functions for managing death callbacks - one to check if it exists and one to remove it
-//
 // add other events with corresponding messages - pilot execution, titan execution, getting executed, getting shot from far away?
+//
+// fix bugs on issue tracker

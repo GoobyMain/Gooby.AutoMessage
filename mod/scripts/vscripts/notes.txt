@@ -7,6 +7,15 @@ void function AddCallback_GameStateEnter( int gameState, void functionref() call
 	clGlobal.gameStateEnterCallbacks[ gameState ].append( callbackFunc )
 }
 
+void function RemoveCallback_GameStateEnter( int gameState, void functionref() callbackFunc )
+{
+	Assert( gameState < clGlobal.gameStateEnterCallbacks.len() )
+
+	Assert( clGlobal.gameStateEnterCallbacks[ gameState ].contains( callbackFunc ), "Have not added " + string( callbackFunc ) + " with AddCallback_GameStateEnter" )
+
+	clGlobal.gameStateEnterCallbacks[ gameState ].remove( clGlobal.onDeathCallbacks[ gameState ].find( callbackFunc ) )
+}
+
 void function AddOnDeathCallback( string className, void functionref( entity ) callbackFunc )
 {
 	if ( !( className in clGlobal.onDeathCallbacks ) )
@@ -33,13 +42,13 @@ void function RemoveOnDeathCallback( string className, void functionref( entity 
 
 	clGlobal.onDeathCallbacks[ className ].remove( clGlobal.onDeathCallbacks[ className ].find( callbackFunc ) )
 
-	// Check if DoDeathCallback has already been enabled for class
+	/*// Check if DoDeathCallback has already been enabled for class
 	foreach ( func in clGlobal.onCreateCallbacks[ className ] )
 	{
 		if ( func == __OnDeathCallbackEnable )
 			return
 	}
-	AddCreateCallback( className, __OnDeathCallbackEnable )
+	AddCreateCallback( className, __OnDeathCallbackEnable )*/
 }
 
 void function ClientCodeCallback_OnDeath( entity ent )
@@ -66,4 +75,29 @@ void function ClientCodeCallback_OnDeath( entity ent )
 	}
 
 	__RunOnDeathOrDestroyCallbacks( ent, className, ent.GetTargetName() )
+}
+
+bool function IsMatchOver()
+{
+	if ( IsRoundBased() && level.nv.gameEndTime )
+		return true
+	else if ( !IsRoundBased() && level.nv.gameEndTime && Time() > level.nv.gameEndTime )
+		return true
+
+	return false
+}
+
+bool function IsRoundBased()
+{
+	return expect bool( level.nv.roundBased )
+}
+
+bool function IsSwitchSidesBased()
+{
+	return (level.nv.switchedSides != null)
+}
+
+int function HasSwitchedSides() //This returns an int instead of a bool! Should rewrite
+{
+	return expect int( level.nv.switchedSides )
 }
