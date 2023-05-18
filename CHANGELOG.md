@@ -1,0 +1,1 @@
+added support for round-based modes and "good half" message option
