@@ -34,7 +34,7 @@ void function MatchStart()
     AutoMessageEndText = GetConVarString( "auto_message_end_text" )
 
     if ( AutoMessageStartText != "" )
-        SendMessage( AutoMessageStartText, AutoMessageWaitTime )
+        thread SendMessage( AutoMessageStartText, AutoMessageWaitTime )
     
     if ( IsRoundBased() )
     {
@@ -53,7 +53,7 @@ void function MatchHalf()
     AutoMessageHalfText = GetConVarString( "auto_message_half_text" )
 
     if ( AutoMessageHalfText != "" )
-        SendMessage( AutoMessageHalfText, AutoMessageWaitTime )
+        thread SendMessage( AutoMessageHalfText, AutoMessageWaitTime )
     
 }
 
@@ -74,7 +74,7 @@ void function MatchEnd()
             else
                 AutoMessageWaitTime = AutoMessageWaitTime - 1.0
             
-            SendMessage( AutoMessageEndText, AutoMessageWaitTime )
+            thread SendMessage( AutoMessageEndText, AutoMessageWaitTime )
         }
         else if ( GetGameState() == eGameState.Epilogue ) // eGameState.Epilogue means there is epilogue
         {
@@ -96,7 +96,7 @@ void function PlayerDiedDuringEpilogue( entity player )
 
 void function EpilogueOver()
 {
-    SendMessageDuringEpilogue( AutoMessageEndText, 0 )
+    thread SendMessageDuringEpilogue( AutoMessageEndText, 0 )
 }
 
 void function SendMessageDuringEpilogue( string MessageText, float WaitTime )
@@ -120,10 +120,6 @@ void function SendMessage( string MessageText, float WaitTime )
 
 // TODO
 //
-// HANDLE GAMEMODES WITH MULTIPLE HALFS??
-//
 // when you die in epilogue, first check if you can respawn, before sending message or removing callbacks
 //
 // add other events with corresponding messages - pilot execution, titan execution, getting executed, getting shot from far away?
-//
-// fix bugs on issue tracker
