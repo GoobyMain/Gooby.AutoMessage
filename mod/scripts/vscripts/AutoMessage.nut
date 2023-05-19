@@ -64,15 +64,17 @@ void function MatchEnd()
 
     if ( AutoMessageEndText != "" )
     {
+        const WAIT_FOR_GAMESTATE_CHANGE = 1.0
+
         wait 1 // This gives enough time for the gamestate to change from eGameState.WinnerDetermined to eGameState.Epilogue if there's an epilogue
 
         if ( GetGameState() == eGameState.WinnerDetermined ) // eGameState.WinnerDetermined here means there's no epilogue
         {
-            // Adjust AutoMessageWaitTime for that 1 second wait from earlier
-            if ( AutoMessageWaitTime < 1 )
+            // Adjust AutoMessageWaitTime for that wait from earlier
+            if ( AutoMessageWaitTime < WAIT_FOR_GAMESTATE_CHANGE )
                 AutoMessageWaitTime = 0
             else
-                AutoMessageWaitTime = AutoMessageWaitTime - 1.0
+                AutoMessageWaitTime = AutoMessageWaitTime - WAIT_FOR_GAMESTATE_CHANGE
             
             thread SendMessage( AutoMessageEndText, AutoMessageWaitTime )
         }
@@ -80,26 +82,42 @@ void function MatchEnd()
         {
             MessageSentDuringEpilogue = false
 
-            AddOnDeathCallback( "player", PlayerDiedDuringEpilogue )
+            AddOnDeathCallback( "player", PlayerDiedEpilogue )
             AddCallback_GameStateEnter( eGameState.Postmatch, EpilogueOver ) // eGameState.Postmatch means game is over, showing scoreboard
         }
     }
 }
 
-void function PlayerDiedDuringEpilogue( entity player )
+void function PlayerDiedEpilogue( entity player )
 {
     if ( player == GetLocalClientPlayer() )
+        thread ValidateDeathEpilogue( player )
+}
+
+void function ValidateDeathEpilogue( entity player )
+{
+    const WAIT_FOR_RESPAWN_AVAILABLE = 1.0
+
+    wait WAIT_FOR_RESPAWN_AVAILABLE // This gives enough time for IsRespawnAvailable() to update
+
+    if ( !IsRespawnAvailable( player ) )
     {
-        thread SendMessageDuringEpilogue( AutoMessageEndText, AutoMessageWaitTime )
+        // Adjust AutoMessageWaitTime for wait
+        if ( AutoMessageWaitTime < WAIT_FOR_RESPAWN_AVAILABLE )
+            AutoMessageWaitTime = 0
+        else
+            AutoMessageWaitTime = AutoMessageWaitTime - WAIT_FOR_RESPAWN_AVAILABLE
+
+        thread SendMessageEpilogue( AutoMessageEndText, AutoMessageWaitTime )
     }
 }
 
 void function EpilogueOver()
 {
-    thread SendMessageDuringEpilogue( AutoMessageEndText, 0 )
+    thread SendMessageEpilogue( AutoMessageEndText, 0 )
 }
 
-void function SendMessageDuringEpilogue( string MessageText, float WaitTime )
+void function SendMessageEpilogue( string MessageText, float WaitTime )
 {
     wait WaitTime
 
@@ -119,7 +137,5 @@ void function SendMessage( string MessageText, float WaitTime )
 
 
 // TODO
-//
-// when you die in epilogue, first check if you can respawn, before sending message or removing callbacks
 //
 // add other events with corresponding messages - pilot execution, titan execution, getting executed, getting shot from far away?

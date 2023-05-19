@@ -1,19 +1,20 @@
 {
 	"Name": "Gooby.AutoMessage",
 	"Description": "Makes you say messages at different events, including end of match, customizable",
-	"Version": "0.2.2",
+	"Version": "0.2.3",
 	"LoadPriority": 2,
 	
 	"ConVars": [
 		{
 			// The message that gets sent at the start of the game
 			"Name": "auto_message_start_text",
-			"DefaultValue": ""
+			"DefaultValue": "",
+			"Flags": 16777216
 		},
 		{
-			// The message that gets sent when switching sides in round-based gamemodes - NOT IMPLEMENTED
+			// The message that gets sent when switching sides in round-based gamemodes
 			"Name": "auto_message_half_text",
-			"DefaultValue": "gh",
+			"DefaultValue": "",
 			"Flags": 16777216
 		},
 		{
