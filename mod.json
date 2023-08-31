@@ -1,0 +1,50 @@
+{
+	"Name": "Gooby.AutoMessage",
+	"Description": "Makes you say messages at different events, including end of match, customizable",
+	"Version": "0.2.5",
+	"LoadPriority": 2,
+	
+	"ConVars": [
+		{
+			// The message that gets sent at the start of the game
+			"Name": "auto_message_start_text",
+			"DefaultValue": "",
+			"Flags": 16777232
+		},
+		{
+			// The message that gets sent when switching sides in round-based gamemodes
+			"Name": "auto_message_half_text",
+			"DefaultValue": "",
+			"Flags": 16777232
+		},
+		{
+			// The message that gets sent at the end of the game
+			"Name": "auto_message_end_text",
+			"DefaultValue": "gg",
+			"Flags": 16777232
+		},
+		{
+			// How many seconds after event occurs to wait before sending the message
+			"Name": "auto_message_wait_time",
+			"DefaultValue": "0",
+			"Flags": 16777232
+		}
+	],
+
+	"Scripts": [
+        {
+			"Path": "AutoMessage.nut",
+			"RunOn": "CLIENT && MP",
+			"ClientCallback": {
+				"Before": "InitAutoMessage"
+			}
+		},
+		{
+			"Path": "AutoMessageHookup.nut",
+			"RunOn": "UI",
+			"UICallback": {
+				"Before": "AutoMessageHookup"
+			}
+		}
+	]
+}
