@@ -1,7 +1,4 @@
-0.2.5
-- fixed mistake with thunderstore package
-
-0.2.4
+0.2.6
 - updated for integrated mod settings
 
 0.2.3

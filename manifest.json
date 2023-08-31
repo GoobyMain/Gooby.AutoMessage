@@ -1,6 +1,6 @@
 {
     "name": "AutoMessage",
-    "version_number": "0.2.5",
+    "version_number": "0.2.6",
     "website_url": "https://github.com/GoobyMain/Gooby.AutoMessage",
     "description": "Makes you say messages at different events, including end of match, customizable",
     "dependencies": []

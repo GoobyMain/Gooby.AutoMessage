@@ -1,7 +1,7 @@
 {
 	"Name": "Gooby.AutoMessage",
 	"Description": "Makes you say messages at different events, including end of match, customizable",
-	"Version": "0.2.5",
+	"Version": "0.2.6",
 	"LoadPriority": 2,
 	
 	"ConVars": [
